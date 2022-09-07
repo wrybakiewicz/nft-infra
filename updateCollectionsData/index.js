@@ -103,6 +103,9 @@ const updateCollection = async (address) => {
     console.log("Updated collection: " + address)
 }
 
+//TODO: update only the latest (by last block)
+//TODO: thorughput retry better ?
+
 exports.handler = async (event, context) => {
     try {
         console.log("Updating collections data")
