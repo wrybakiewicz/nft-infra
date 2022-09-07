@@ -2,8 +2,7 @@ require("dotenv").config()
 const {Pool} = require('pg')
 const axios = require("axios");
 
-const ALCHEMY_BASE_URL = `https://opt-mainnet.g.alchemy.com/nft/v2/${process.env.ALCHEMY_KEY}/`
-const GET_OWNERS_FOR_CONTRACT = ALCHEMY_BASE_URL + "getOwnersForCollection"
+const ALCHEMY_BASE_URL = `https://opt-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}/`
 
 const dbConfig = {
     user: process.env.DB_USERNAME,
@@ -37,11 +36,40 @@ const initializeDbClient = async () => {
     }
 }
 
-const getTopHoldings = (owners, ownersNumber, totalSupply, percent) => {
-    const topOwnersNumber = (ownersNumber * percent) / 100
-    const top01OwnersBalances = owners.slice(0, topOwnersNumber).map(_ => _.balance)
-    const top01Holdings = top01OwnersBalances.reduce((sum, element) => sum + element, 0)
-    return 100 * (top01Holdings) / totalSupply
+const getTransfers = (contractAddress) => {
+    return getTransfersSum([], contractAddress, true, undefined)
+}
+
+const getTransfersSum = async (transfers, contractAddress, firstRequest, pageKey) => {
+    if (firstRequest || pageKey) {
+        const result = await getTransfersExec(contractAddress, pageKey)
+        const newTransfers = transfers.concat(result.transfers)
+        return getTransfersSum(newTransfers, contractAddress, false, result.pageKey)
+    } else {
+        return transfers
+    }
+}
+
+const getTransfersExec = (contractAddress, pageKey) => {
+    console.log(`Getting transfer exec: ${contractAddress} pageKey: ${pageKey}`)
+    const config = {
+        id: 1,
+        jsonrpc: '2.0',
+        method: 'alchemy_getAssetTransfers',
+        params: [
+            {
+                fromBlock: `0x0`,
+                toBlock: `latest`,
+                withMetadata: false,
+                excludeZeroValue: false,
+                maxCount: '0x3e8',
+                category: ['erc721'],
+                contractAddresses: [`${contractAddress}`],
+                pageKey: pageKey
+            }
+        ]
+    }
+    return axios.post(ALCHEMY_BASE_URL, config).then(result => result.data.result)
 }
 
 exports.handler = async (event, context) => {
@@ -50,44 +78,22 @@ exports.handler = async (event, context) => {
 
         const nftContractAddress = "0x5c9D55b78FEBCC2061715BA4f57EcF8EA2711F2c"
 
-        const response = await axios.get(GET_OWNERS_FOR_CONTRACT, {
-            params: {
-                contractAddress: nftContractAddress,
-                withTokenBalances: true
+        const transfers = await getTransfers(nftContractAddress)
+        const mappedTransfers = transfers.map(transfer => {
+            return {
+                from: transfer.from,
+                to: transfer.to,
+                tokenId: transfer.tokenId,
+                block: transfer.blockNum
             }
         })
-        const owners = response.data.ownerAddresses.map(owner => {
-            return {owner: owner.ownerAddress, balance: owner.tokenBalances.length}
-        }).sort((e1, e2) => e2.balance - e1.balance)
 
-        //TODO: save JSON in table {collectionAddress, holders}
+        console.log(mappedTransfers)
+        console.log(mappedTransfers.length)
 
-        const totalSupply = owners.map(owner => owner.balance).reduce((sum, element) => sum + element, 0)
+        await query("INSERT INTO transfers(contract_address, transfers_json) VALUES($1, $2)", [nftContractAddress, JSON.stringify(mappedTransfers)])
 
-        console.log(owners)
-        console.log(totalSupply)
-        console.log(owners.length)
-
-
-        const top01HoldingsPercent = getTopHoldings(owners, owners.length, totalSupply, 0.1)
-        const top05HoldingsPercent = getTopHoldings(owners, owners.length, totalSupply, 0.5)
-        const top1HoldingsPercent = getTopHoldings(owners, owners.length, totalSupply, 1)
-        const top2HoldingsPercent = getTopHoldings(owners, owners.length, totalSupply, 2)
-        const top5HoldingsPercent = getTopHoldings(owners, owners.length, totalSupply, 5)
-        const top10HoldingsPercent = getTopHoldings(owners, owners.length, totalSupply, 10)
-
-        const averageHoldings = totalSupply / owners.length
-
-        console.log(top01HoldingsPercent)
-        console.log(top05HoldingsPercent)
-        console.log(top1HoldingsPercent)
-        console.log(top2HoldingsPercent)
-        console.log(top5HoldingsPercent)
-        console.log(top10HoldingsPercent)
-
-        console.log(averageHoldings)
-
-        console.log("Updated holder concentration")
+        console.log("Updated collections data")
     } catch (err) {
         console.log(err);
         throw err;
