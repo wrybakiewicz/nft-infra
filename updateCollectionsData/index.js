@@ -36,21 +36,35 @@ const initializeDbClient = async () => {
     }
 }
 
-const getTransfers = (contractAddress) => {
-    return getTransfersSum([], contractAddress, true, undefined)
+const getTransfers = (address) => {
+    return getTransfersSum([], address, true, undefined)
 }
 
-const getTransfersSum = async (transfers, contractAddress, firstRequest, pageKey) => {
+const getTransfersSum = async (transfers, address, firstRequest, pageKey) => {
     if (firstRequest || pageKey) {
-        const result = await getTransfersExec(contractAddress, pageKey)
+        const result = await getTransfersExec(address, pageKey, 3)
         const newTransfers = transfers.concat(result.transfers)
-        return getTransfersSum(newTransfers, contractAddress, false, result.pageKey)
+        return getTransfersSum(newTransfers, address, false, result.pageKey)
     } else {
         return transfers
     }
 }
 
-const getTransfersExec = (contractAddress, pageKey) => {
+const getTransfersExec = async (address, pageKey, retry) => {
+    try {
+        return await getTransfersExecRetry(address, pageKey)
+    } catch (e) {
+        console.error("Error during getTransfersExec");
+        console.error(e)
+        if (retry > 0) {
+            return getTransfersExec(address, pageKey, retry - 1)
+        } else {
+            throw e
+        }
+    }
+}
+
+const getTransfersExecRetry = (contractAddress, pageKey) => {
     console.log(`Getting transfer exec: ${contractAddress} pageKey: ${pageKey}`)
     const config = {
         id: 1,
@@ -72,26 +86,32 @@ const getTransfersExec = (contractAddress, pageKey) => {
     return axios.post(ALCHEMY_BASE_URL, config).then(result => result.data.result)
 }
 
+const updateCollection = async (address) => {
+    console.log("Updating collection: " + address)
+    const transfers = await getTransfers(address)
+    const mappedTransfers = transfers.map(transfer => {
+        return {
+            from: transfer.from,
+            to: transfer.to,
+            tokenId: transfer.tokenId,
+            block: transfer.blockNum
+        }
+    })
+    console.log(mappedTransfers.length)
+
+    await query("INSERT INTO transfers(contract_address, transfers_json) VALUES($1, $2)", [address, JSON.stringify(mappedTransfers)])
+    console.log("Updated collection: " + address)
+}
+
 exports.handler = async (event, context) => {
     try {
         console.log("Updating collections data")
 
-        const nftContractAddress = "0x5c9D55b78FEBCC2061715BA4f57EcF8EA2711F2c"
+        const collectionAddresses = (await query("SELECT contract_address FROM collections")).rows
 
-        const transfers = await getTransfers(nftContractAddress)
-        const mappedTransfers = transfers.map(transfer => {
-            return {
-                from: transfer.from,
-                to: transfer.to,
-                tokenId: transfer.tokenId,
-                block: transfer.blockNum
-            }
-        })
+        console.log(collectionAddresses)
 
-        console.log(mappedTransfers)
-        console.log(mappedTransfers.length)
-
-        await query("INSERT INTO transfers(contract_address, transfers_json) VALUES($1, $2)", [nftContractAddress, JSON.stringify(mappedTransfers)])
+        await Promise.all(collectionAddresses.map(address => updateCollection(address.contract_address)))
 
         console.log("Updated collections data")
     } catch (err) {
