@@ -60,6 +60,8 @@ exports.handler = async (event, context) => {
             return {owner: owner.ownerAddress, balance: owner.tokenBalances.length}
         }).sort((e1, e2) => e2.balance - e1.balance)
 
+        //TODO: save JSON in table {collectionAddress, holders}
+
         const totalSupply = owners.map(owner => owner.balance).reduce((sum, element) => sum + element, 0)
 
         console.log(owners)
