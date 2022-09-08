@@ -86,6 +86,15 @@ const getTransfersExecRetry = (contractAddress, pageKey) => {
     return axios.post(ALCHEMY_BASE_URL, config).then(result => result.data.result)
 }
 
+const splitIntoChunks = (array) => {
+    const chunks = []
+    const chunkSize = 1000;
+    for (let i = 0; i < array.length; i += chunkSize) {
+        chunks.push(array.slice(i, i + chunkSize))
+    }
+    return chunks
+}
+
 const updateCollection = async (address) => {
     console.log("Updating collection: " + address)
     const transfers = await getTransfers(address)
@@ -97,19 +106,27 @@ const updateCollection = async (address) => {
             block: parseInt(transfer.blockNum, 16)
         }
     })
-    console.log(mappedTransfers)
     console.log(mappedTransfers.length)
 
-    const insertValues = mappedTransfers
-        .map(transfer => `('${address}', '${transfer.from}', '${transfer.to}', ${transfer.tokenId}, ${transfer.block})`)
-        .join(", ")
+    const chunks = splitIntoChunks(mappedTransfers)
+    console.log(chunks.length)
 
-    console.log(insertValues)
-    await query(`INSERT INTO transfers(contract_address, from_address, to_address, token_id, block) VALUES ${insertValues}`)
+    await Promise.all(chunks.map(chunk => insertNewValues(address, chunk)))
+
     console.log("Updated collection: " + address)
 }
 
-//TODO: insert by 1000 in batches
+const insertNewValues = async (address, transfers) => {
+    console.log("Inserting chunk for " + address)
+    const insertValues = transfers
+        .map(transfer => `('${address}', '${transfer.from}', '${transfer.to}', ${transfer.tokenId}, ${transfer.block})`)
+        .join(", ")
+
+    await query(`INSERT INTO transfers(contract_address, from_address, to_address, token_id, block)
+                 VALUES ${insertValues}`)
+    console.log("Inserted chunk for " + address)
+}
+
 //TODO: update only the latest (by last block)
 //TODO: thorughput retry better ?
 
