@@ -93,16 +93,23 @@ const updateCollection = async (address) => {
         return {
             from: transfer.from,
             to: transfer.to,
-            tokenId: transfer.tokenId,
-            block: transfer.blockNum
+            tokenId: parseInt(transfer.tokenId, 16),
+            block: parseInt(transfer.blockNum, 16)
         }
     })
+    console.log(mappedTransfers)
     console.log(mappedTransfers.length)
 
-    await query("INSERT INTO transfers(contract_address, transfers_json) VALUES($1, $2)", [address, JSON.stringify(mappedTransfers)])
+    const insertValues = mappedTransfers
+        .map(transfer => `('${address}', '${transfer.from}', '${transfer.to}', ${transfer.tokenId}, ${transfer.block})`)
+        .join(", ")
+
+    console.log(insertValues)
+    await query(`INSERT INTO transfers(contract_address, from_address, to_address, token_id, block) VALUES ${insertValues}`)
     console.log("Updated collection: " + address)
 }
 
+//TODO: insert by 1000 in batches
 //TODO: update only the latest (by last block)
 //TODO: thorughput retry better ?
 
