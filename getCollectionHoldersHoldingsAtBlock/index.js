@@ -56,8 +56,16 @@ const isCollectionIndexed = (collection) => {
     return query("SELECT COUNT(*) FROM collections WHERE contract_address=$1", [collection]).then(_ => _.rows[0].count !== "0")
 }
 
+const isRequestValid = (event) => {
+    const queryParams = event.queryStringParameters
+    return queryParams && queryParams.collection && queryParams.block
+}
+
 exports.handler = async (event, context) => {
     try {
+        if(!isRequestValid(event)) {
+            return buildResponse(400, {error: "Pass block and collection as params"})
+        }
         const queryParams = event.queryStringParameters
         const block = queryParams.block
         const collection = queryParams.collection.toLowerCase()

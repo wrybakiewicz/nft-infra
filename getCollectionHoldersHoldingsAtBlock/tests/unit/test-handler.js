@@ -7,6 +7,49 @@ const chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 
 describe('get collection holders holdings at block', function () {
+
+    it('should return bad request when no query string', async () => {
+        let context;
+        const event = {}
+
+        const result = await app.handler(event, context)
+
+        expect(result.statusCode).to.be.eq(400);
+        const body = JSON.parse(result.body)
+        expect(body.error).to.be.eq("Pass block and collection as params");
+    });
+
+    it('should return bad request when no block', async () => {
+        let context;
+        const event = {
+            queryStringParameters: {
+                collection: "not exist"
+            }
+        }
+
+        const result = await app.handler(event, context)
+
+        expect(result.statusCode).to.be.eq(400);
+        const body = JSON.parse(result.body)
+        expect(body.error).to.be.eq("Pass block and collection as params");
+    });
+
+    it('should return bad request when no collection', async () => {
+        let context;
+        const event = {
+            queryStringParameters: {
+                block: "not exist"
+            }
+        }
+
+        const result = await app.handler(event, context)
+
+        expect(result.statusCode).to.be.eq(400);
+        const body = JSON.parse(result.body)
+        expect(body.error).to.be.eq("Pass block and collection as params");
+    });
+
+
     it('should return not found if collection not indexed', async () => {
         let context;
         const event = {
@@ -73,7 +116,7 @@ describe('get collection holders holdings at block', function () {
 
         expect(result.statusCode).to.be.eq(200);
         const body = JSON.parse(result.body)
-        expect(body.holdersHoldings.length).to.be.eq(1971);
+        expect(body.holdersHoldings.length).to.be.eq(1972);
         expect(body.holdersHoldings[0].holder).to.be.eq("0x57d1eae9f0972723f0e78eaf4e6c08e90565206f");
         expect(body.holdersHoldings[0].holdings).to.be.eq(679);
         expect(body.holdersHoldings[1].holder).to.be.eq("0x000a6457cd56f92ba4824344e1d16923762725e7");
