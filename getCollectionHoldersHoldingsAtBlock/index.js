@@ -47,11 +47,9 @@ const buildResponse = (statusCode, bodyJson) => {
     }
 }
 
-const getCollectionConcentration = async (address, block) => {
+const getCollectionHoldersHoldings = async (address, block) => {
     const transfers = await query("SELECT from_address as from, to_address as to, token_id as token, block FROM transfers WHERE contract_address=$1 AND block <= $2", [address, block]).then(result => result.rows)
-    console.log(transfers)
     return getCollectionHolderHoldings(transfers)
-    //TODO: concentration
 }
 
 const isCollectionIndexed = (collection) => {
@@ -64,7 +62,7 @@ exports.handler = async (event, context) => {
         const block = queryParams.block
         const collection = queryParams.collection.toLowerCase()
 
-        console.log(`Getting collection: ${collection} concentration at block: ${block} `)
+        console.log(`Getting collection: ${collection} holders holdings at block: ${block}`)
 
         const isIndexed = await isCollectionIndexed(collection)
 
@@ -73,13 +71,11 @@ exports.handler = async (event, context) => {
             return buildResponse(404, {error: "Collection is not indexed"})
         }
 
-        const concentration = await getCollectionConcentration(collection, block)
+        const holdersHoldings = await getCollectionHoldersHoldings(collection, block)
 
-        console.log(concentration)
+        console.log(`Got collection: ${collection} holders holdings at block: ${block}`)
 
-        console.log("Got collection concentration at block " + block)
-
-        return buildResponse(200, {concentration: Array.from(concentration.entries())})
+        return buildResponse(200, {holdersHoldings: holdersHoldings})
     } catch (err) {
         console.log(err);
         throw err;

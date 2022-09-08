@@ -2,7 +2,6 @@ const getCollectionHolderHoldings = (transfers) => {
     const holderHoldingMap = new Map()
     for (let i = 0; i < transfers.length; i++) {
         const transfer = transfers[i]
-        console.log(transfer)
         const fromHolding = holderHoldingMap.get(transfer.from)
         const toHolding = holderHoldingMap.get(transfer.to)
         //not mint

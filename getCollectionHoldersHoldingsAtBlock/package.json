@@ -1,7 +1,7 @@
 {
-  "name": "getCollectionConcentrationAtBlock",
+  "name": "getCollectionHoldersHoldingsAtBlock",
   "version": "1.0.0",
-  "description": "getting collection concentration at block",
+  "description": "get collection holders holdings at block",
   "main": "index.js",
   "author": "SAM CLI",
   "license": "MIT",
