@@ -36,43 +36,49 @@ const initializeDbClient = async () => {
     }
 }
 
-const getTransfers = (address) => {
-    return getTransfersSum([], address, true, undefined)
+const getTransfers = (address, latestSavedBlock) => {
+    return getTransfersSum([], address, latestSavedBlock, true, undefined)
 }
 
-const getTransfersSum = async (transfers, address, firstRequest, pageKey) => {
+const getTransfersSum = async (transfers, address, latestSavedBlock, firstRequest, pageKey) => {
     if (firstRequest || pageKey) {
-        const result = await getTransfersExec(address, pageKey, 3)
+        const result = await getTransfersExec(address, pageKey, latestSavedBlock, 3)
         const newTransfers = transfers.concat(result.transfers)
-        return getTransfersSum(newTransfers, address, false, result.pageKey)
+        return getTransfersSum(newTransfers, address, latestSavedBlock, false, result.pageKey)
     } else {
         return transfers
     }
 }
 
-const getTransfersExec = async (address, pageKey, retry) => {
+const getTransfersExec = async (address, pageKey, latestSavedBlock, retry) => {
     try {
-        return await getTransfersExecRetry(address, pageKey)
+        return await getTransfersExecRetry(address, pageKey, latestSavedBlock)
     } catch (e) {
         console.error("Error during getTransfersExec");
         console.error(e)
         if (retry > 0) {
-            return getTransfersExec(address, pageKey, retry - 1)
+            return getTransfersExec(address, pageKey, latestSavedBlock, retry - 1)
         } else {
             throw e
         }
     }
 }
 
-const getTransfersExecRetry = (contractAddress, pageKey) => {
+const getTransfersExecRetry = async (contractAddress, pageKey, latestSavedBlock) => {
     console.log(`Getting transfer exec: ${contractAddress} pageKey: ${pageKey}`)
+    let fromBlock;
+    if (latestSavedBlock) {
+        fromBlock = '0x' + (latestSavedBlock + 1).toString(16)
+    } else {
+        fromBlock = `0x0`
+    }
     const config = {
         id: 1,
         jsonrpc: '2.0',
         method: 'alchemy_getAssetTransfers',
         params: [
             {
-                fromBlock: `0x0`,
+                fromBlock: fromBlock,
                 toBlock: `latest`,
                 withMetadata: false,
                 excludeZeroValue: false,
@@ -83,7 +89,12 @@ const getTransfersExecRetry = (contractAddress, pageKey) => {
             }
         ]
     }
-    return axios.post(ALCHEMY_BASE_URL, config).then(result => result.data.result)
+    const result = await axios.post(ALCHEMY_BASE_URL, config).then(result => result.data.result)
+    if (result === undefined) {
+        return {transfers: []}
+    } else {
+        return result
+    }
 }
 
 const splitIntoChunks = (array) => {
@@ -95,9 +106,14 @@ const splitIntoChunks = (array) => {
     return chunks
 }
 
+const getLatestSavedBlock = (address) => {
+    return query("SELECT MAX(block) FROM transfers WHERE contract_address=$1", [address]).then(_ => _.rows[0].max)
+}
+
 const updateCollection = async (address) => {
     console.log("Updating collection: " + address)
-    const transfers = await getTransfers(address)
+    const latestSavedBlock = await getLatestSavedBlock(address)
+    const transfers = await getTransfers(address, latestSavedBlock)
     const mappedTransfers = transfers.map(transfer => {
         return {
             from: transfer.from,
@@ -127,14 +143,17 @@ const insertNewValues = async (address, transfers) => {
     console.log("Inserted chunk for " + address)
 }
 
-//TODO: update only the latest (by last block)
+const getCollectionAddresses = () => {
+    return query("SELECT contract_address FROM collections").then(_ => _.rows)
+}
+
 //TODO: thorughput retry better ?
 
 exports.handler = async (event, context) => {
     try {
         console.log("Updating collections data")
 
-        const collectionAddresses = (await query("SELECT contract_address FROM collections")).rows
+        const collectionAddresses = await getCollectionAddresses()
 
         console.log(collectionAddresses)
 

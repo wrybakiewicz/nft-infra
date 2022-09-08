@@ -4,7 +4,8 @@ CREATE TABLE transfers
     from_address     text,
     to_address       text,
     token_id         int,
-    block            int
+    block            int,
+    PRIMARY KEY(contract_address, from_address, to_address, token_id, block)
 );
 
 CREATE TABLE collections
