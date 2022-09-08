@@ -1,7 +1,7 @@
 {
-  "name": "updateCollectionsData",
+  "name": "getCollectionConcentrationAtBlock",
   "version": "1.0.0",
-  "description": "update collections data",
+  "description": "getting collection concentration at block",
   "main": "index.js",
   "author": "SAM CLI",
   "license": "MIT",
@@ -9,7 +9,8 @@
     "axios": "^0.27.2",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^16.0.0",
-    "pg": "^8.7.3"
+    "pg": "^8.7.3",
+    "common": "file:../common"
   },
   "scripts": {
     "test": "mocha tests/unit/"

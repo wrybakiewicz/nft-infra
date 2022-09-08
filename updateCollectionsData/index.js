@@ -160,6 +160,8 @@ exports.handler = async (event, context) => {
         await Promise.all(collectionAddresses.map(address => updateCollection(address.contract_address)))
 
         console.log("Updated collections data")
+
+        //TODO: return sth ?
     } catch (err) {
         console.log(err);
         throw err;
