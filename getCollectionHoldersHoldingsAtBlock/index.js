@@ -48,7 +48,11 @@ const buildResponse = (statusCode, bodyJson) => {
 }
 
 const getCollectionHoldersHoldings = async (address, block) => {
-    const transfers = await query("SELECT from_address as from, to_address as to, token_id as token, block FROM transfers WHERE contract_address=$1 AND block <= $2", [address, block]).then(result => result.rows)
+    let blockQuery = ""
+    if(block) {
+        blockQuery = ` AND BLOCK <= ${block}`
+    }
+    const transfers = await query("SELECT from_address as from, to_address as to, token_id as token, block FROM transfers WHERE contract_address=$1" + blockQuery, [address]).then(result => result.rows)
     return getCollectionHolderHoldings(transfers)
 }
 
@@ -58,7 +62,7 @@ const isCollectionIndexed = (collection) => {
 
 const isRequestValid = (event) => {
     const queryParams = event.queryStringParameters
-    return queryParams && queryParams.collection && queryParams.block
+    return queryParams && queryParams.collection
 }
 
 exports.handler = async (event, context) => {

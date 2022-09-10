@@ -19,19 +19,19 @@ describe('get collection holders holdings at block', function () {
         expect(body.error).to.be.eq("Pass block and collection as params");
     });
 
-    it('should return bad request when no block', async () => {
+    it('should return holdings from last block when no block passed', async () => {
         let context;
         const event = {
             queryStringParameters: {
-                collection: "not exist"
+                collection: "0x5c9d55b78febcc2061715ba4f57ecf8ea2711f2c"
             }
         }
 
         const result = await app.handler(event, context)
 
-        expect(result.statusCode).to.be.eq(400);
+        expect(result.statusCode).to.be.eq(200);
         const body = JSON.parse(result.body)
-        expect(body.error).to.be.eq("Pass block and collection as params");
+        expect(body.holdersHoldings.length).to.be.eq(1974);
     });
 
     it('should return bad request when no collection', async () => {
@@ -116,9 +116,9 @@ describe('get collection holders holdings at block', function () {
 
         expect(result.statusCode).to.be.eq(200);
         const body = JSON.parse(result.body)
-        expect(body.holdersHoldings.length).to.be.eq(1972);
+        expect(body.holdersHoldings.length).to.be.eq(1974);
         expect(body.holdersHoldings[0].holder).to.be.eq("0x57d1eae9f0972723f0e78eaf4e6c08e90565206f");
-        expect(body.holdersHoldings[0].holdings).to.be.eq(679);
+        expect(body.holdersHoldings[0].holdings).to.be.eq(674);
         expect(body.holdersHoldings[1].holder).to.be.eq("0x000a6457cd56f92ba4824344e1d16923762725e7");
         expect(body.holdersHoldings[1].holdings).to.be.eq(2);
         expect(body.holdersHoldings[2].holder).to.be.eq("0xb7745f7e815043ab1d32f5249b5329a59df04479");
