@@ -6,7 +6,7 @@ const expect = chai.expect;
 const chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
 
-describe('get collection holders holdings at block', function () {
+describe('get collection holders holding percent of time', function () {
 
     it('should return bad request when no query string', async () => {
         let context;
@@ -19,7 +19,7 @@ describe('get collection holders holdings at block', function () {
         expect(body.error).to.be.eq("Pass block and collection as params");
     });
 
-    it('should return holdings from last block when no block passed', async () => {
+    it('should return holders holding percent of time from last block when no block passed', async () => {
         let context;
         const event = {
             queryStringParameters: {
@@ -31,7 +31,8 @@ describe('get collection holders holdings at block', function () {
 
         expect(result.statusCode).to.be.eq(200);
         const body = JSON.parse(result.body)
-        expect(body.holdersHoldings.length).to.be.gte(1976);
+        expect(body.holdersHoldingPercentOfTime.totalCollectionBlocks).to.be.gt(6295554);
+        expect(body.holdersHoldingPercentOfTime.holderHoldingDetails.length).to.be.gte(5001);
     });
 
     it('should return bad request when no collection', async () => {
@@ -67,7 +68,7 @@ describe('get collection holders holdings at block', function () {
         expect(body.error).to.be.eq("Collection is not indexed");
     });
 
-    it('should return holders holdings at block when collection existed', async () => {
+    it('should return holders holdings percent of time at block when collection existed', async () => {
         let context;
         const event = {
             queryStringParameters: {
@@ -81,12 +82,14 @@ describe('get collection holders holdings at block', function () {
 
         expect(result.statusCode).to.be.eq(200);
         const body = JSON.parse(result.body)
-        expect(body.holdersHoldings.length).to.be.eq(1);
-        expect(body.holdersHoldings[0].holder).to.be.eq("0x57d1eae9f0972723f0e78eaf4e6c08e90565206f");
-        expect(body.holdersHoldings[0].holdings).to.be.eq(100);
+        expect(body.holdersHoldingPercentOfTime.totalCollectionBlocks).to.be.eq(1);
+        expect(body.holdersHoldingPercentOfTime.holderHoldingDetails.length).to.be.eq(1);
+        expect(body.holdersHoldingPercentOfTime.holderHoldingDetails[0].holder).to.be.eq("0x57d1eae9f0972723f0e78eaf4e6c08e90565206f");
+        expect(body.holdersHoldingPercentOfTime.holderHoldingDetails[0].totalHoldingBlocks).to.be.eq(1);
+        expect(body.holdersHoldingPercentOfTime.holderHoldingDetails[0].holdingPercent).to.be.eq(100);
     });
 
-    it('should return empty holders holdings at block when collection not existed', async () => {
+    it('should return empty holders percent of time rating at block when collection not existed', async () => {
         let context;
         const event = {
             queryStringParameters: {
@@ -100,10 +103,10 @@ describe('get collection holders holdings at block', function () {
 
         expect(result.statusCode).to.be.eq(200);
         const body = JSON.parse(result.body)
-        expect(body.holdersHoldings.length).to.be.eq(0);
+        expect(body.holdersHoldingPercentOfTime.length).to.be.eq(0);
     });
 
-    it('should return empty holders holdings at latest block', async () => {
+    it('should return holders holding percent of time at latest block', async () => {
         let context;
         const event = {
             queryStringParameters: {
@@ -116,13 +119,7 @@ describe('get collection holders holdings at block', function () {
 
         expect(result.statusCode).to.be.eq(200);
         const body = JSON.parse(result.body)
-        expect(body.holdersHoldings.length).to.be.gte(1976);
-        expect(body.holdersHoldings[0].holder).to.be.eq("0x57d1eae9f0972723f0e78eaf4e6c08e90565206f");
-        expect(body.holdersHoldings[0].holdings).to.be.eq(674);
-        expect(body.holdersHoldings[1].holder).to.be.eq("0x000a6457cd56f92ba4824344e1d16923762725e7");
-        expect(body.holdersHoldings[1].holdings).to.be.eq(2);
-        expect(body.holdersHoldings[2].holder).to.be.eq("0xb7745f7e815043ab1d32f5249b5329a59df04479");
-        expect(body.holdersHoldings[2].holdings).to.be.eq(1);
+        expect(body.holdersHoldingPercentOfTime.holderHoldingDetails.length).to.be.gte(5001);
     });
 
 });
