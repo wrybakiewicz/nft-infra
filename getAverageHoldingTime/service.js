@@ -18,7 +18,8 @@ const getAverageHoldingTime = (transfers, toBlock) => {
         }
     })
     return holdersToHoldingDetailsToBlock.map(holderToHoldingDetails => {
-        const heldTokensCount = holderToHoldingDetails.holdingDetails.length
+        const tokenIds = holderToHoldingDetails.holdingDetails.map(holding => holding.tokenId)
+        const heldTokensCount = [...new Set(tokenIds)].length
         const totalTokenHoldingTime = holderToHoldingDetails.holdingDetails
             .map(holding => holding.holdingTo - holding.holdingFrom, 1)
             .reduce((e1, e2) => e1 + e2, 0)
