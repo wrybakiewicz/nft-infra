@@ -1,7 +1,7 @@
 require("dotenv").config()
 const {Pool} = require('pg')
 const axios = require("axios");
-const {getCollectionHoldersHoldingPercentOfTimeDetails} = require("common");
+const {getCollectionHoldersHoldingPercentOfTimeDetails} = require("./service");
 
 const ALCHEMY_BASE_URL = `https://opt-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}/`
 

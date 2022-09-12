@@ -1,6 +1,6 @@
 require("dotenv").config()
 const {Pool} = require('pg')
-const {getNumberOfTrades} = require("common");
+const {getNumberOfTrades} = require("./service");
 
 const dbConfig = {
     user: process.env.DB_USERNAME,

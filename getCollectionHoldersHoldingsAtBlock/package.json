@@ -9,8 +9,7 @@
     "axios": "^0.27.2",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^16.0.0",
-    "pg": "^8.7.3",
-    "common": "file:../common"
+    "pg": "^8.7.3"
   },
   "scripts": {
     "test": "mocha tests/unit/ --timeout 5000"

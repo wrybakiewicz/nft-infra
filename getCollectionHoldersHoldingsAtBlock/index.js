@@ -1,6 +1,6 @@
 require("dotenv").config()
 const {Pool} = require('pg')
-const {getCollectionHolderHoldings} = require("common");
+const {getCollectionHolderHoldings} = require("./service");
 
 const dbConfig = {
     user: process.env.DB_USERNAME,
