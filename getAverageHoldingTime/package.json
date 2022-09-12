@@ -1,0 +1,21 @@
+{
+  "name": "getAverageHoldingTime",
+  "version": "1.0.0",
+  "description": "get average holding time",
+  "main": "index.js",
+  "author": "SAM CLI",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "chai-as-promised": "^7.1.1",
+    "dotenv": "^16.0.0",
+    "pg": "^8.7.3"
+  },
+  "scripts": {
+    "test": "mocha tests/unit/ --timeout 5000"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^9.1.4"
+  }
+}
