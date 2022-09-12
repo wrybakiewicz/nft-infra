@@ -15,7 +15,7 @@ const getCollectionHoldersHoldingPercentOfTimeDetails = (transfers, toBlock) => 
             totalHoldingBlocks: totalHoldingBlocks,
             holdingPercent: (100.0 * totalHoldingBlocks) / totalCollectionBlocks
         }
-    })
+    }).filter(details => details.totalHoldingBlocks !== 0)
     return {
         totalCollectionBlocks: totalCollectionBlocks,
         holderHoldingDetails: holdersTotalHoldingBlocks
@@ -36,7 +36,7 @@ const getCollectionHoldersHoldingBlockDetails = (transfers) => {
             if (fromHoldingBlocks.holdingCount > 1) {
                 lastHoldingFrom = fromHoldingBlocks.lastHoldingFrom
             } else {
-                totalHoldingBlocks += (block - fromHoldingBlocks.lastHoldingFrom - 1)
+                totalHoldingBlocks += block - fromHoldingBlocks.lastHoldingFrom
                 lastHoldingFrom = undefined
             }
             holdersToHoldingBlocksMap.set(transfer.from, {
@@ -59,7 +59,7 @@ const getCollectionHoldersHoldingBlockDetails = (transfers) => {
                 })
             } else {
                 holdersToHoldingBlocksMap.set(transfer.to, {
-                    totalHoldingBlocks: 1,
+                    totalHoldingBlocks: 0,
                     lastHoldingFrom: block,
                     holdingCount: 1
                 })

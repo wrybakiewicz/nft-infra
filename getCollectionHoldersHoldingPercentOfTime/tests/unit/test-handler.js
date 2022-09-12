@@ -83,10 +83,7 @@ describe('get collection holders holding percent of time', function () {
         expect(result.statusCode).to.be.eq(200);
         const body = JSON.parse(result.body)
         expect(body.holdersHoldingPercentOfTime.totalCollectionBlocks).to.be.eq(1);
-        expect(body.holdersHoldingPercentOfTime.holderHoldingDetails.length).to.be.eq(1);
-        expect(body.holdersHoldingPercentOfTime.holderHoldingDetails[0].holder).to.be.eq("0x57d1eae9f0972723f0e78eaf4e6c08e90565206f");
-        expect(body.holdersHoldingPercentOfTime.holderHoldingDetails[0].totalHoldingBlocks).to.be.eq(1);
-        expect(body.holdersHoldingPercentOfTime.holderHoldingDetails[0].holdingPercent).to.be.eq(100);
+        expect(body.holdersHoldingPercentOfTime.holderHoldingDetails.length).to.be.eq(0);
     });
 
     it('should return empty holders percent of time rating at block when collection not existed', async () => {
