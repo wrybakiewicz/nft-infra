@@ -42,7 +42,7 @@ const getTransfers = (address, latestSavedBlock) => {
 
 const getTransfersSum = async (transfers, address, latestSavedBlock, firstRequest, pageKey) => {
     if (firstRequest || pageKey) {
-        const result = await getTransfersExec(address, pageKey, latestSavedBlock, 3)
+        const result = await getTransfersExec(address, pageKey, latestSavedBlock, 10)
         const newTransfers = transfers.concat(result.transfers)
         return getTransfersSum(newTransfers, address, latestSavedBlock, false, result.pageKey)
     } else {
@@ -153,7 +153,7 @@ const insertNewValues = async (address, transfers) => {
 }
 
 const getCollectionAddresses = () => {
-    return query("SELECT contract_address FROM collections").then(_ => _.rows)
+    return query("SELECT contract_address FROM collections").then(_ => _.rows.map(row => row.contract_address))
 }
 
 //TODO: thorughput retry better ?
@@ -162,11 +162,16 @@ exports.handler = async (event, context) => {
     try {
         console.log("Updating collections data")
 
-        const collectionAddresses = await getCollectionAddresses()
+        let collectionAddresses
+        if(event && event.address) {
+            collectionAddresses = [event.address]
+        } else {
+            collectionAddresses = await getCollectionAddresses()
+        }
 
         console.log(collectionAddresses)
 
-        await Promise.all(collectionAddresses.map(address => updateCollectionSafe(address.contract_address)))
+        await Promise.all(collectionAddresses.map(address => updateCollectionSafe(address)))
 
         console.log("Updated collections data")
     } catch (err) {

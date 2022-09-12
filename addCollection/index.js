@@ -81,9 +81,7 @@ exports.handler = async (event, context) => {
 
         console.log(`Added collection ` + address)
 
-        const promise = lambda.invoke({FunctionName: 'updateCollectionsData'}).promise();
-
-        await promise
+        await lambda.invoke({FunctionName: 'updateCollectionsData', Payload: JSON.stringify({ address : address })}).promise();
 
         return buildResponse(200, {})
     } catch (err) {
