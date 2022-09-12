@@ -55,7 +55,7 @@ const getTransfersExec = async (address, pageKey, latestSavedBlock, retry) => {
         return await getTransfersExecRetry(address, pageKey, latestSavedBlock)
     } catch (e) {
         console.error("Error during getTransfersExec");
-        console.error(e)
+        console.error(e.response.status)
         if (retry > 0) {
             return getTransfersExec(address, pageKey, latestSavedBlock, retry - 1)
         } else {
@@ -97,9 +97,8 @@ const getTransfersExecRetry = async (contractAddress, pageKey, latestSavedBlock)
     }
 }
 
-const splitIntoChunks = (array) => {
+const splitIntoChunks = (array, chunkSize) => {
     const chunks = []
-    const chunkSize = 1000;
     for (let i = 0; i < array.length; i += chunkSize) {
         chunks.push(array.slice(i, i + chunkSize))
     }
@@ -124,7 +123,7 @@ const updateCollection = async (address) => {
     })
     console.log(mappedTransfers.length)
 
-    const chunks = splitIntoChunks(mappedTransfers)
+    const chunks = splitIntoChunks(mappedTransfers, 1000)
     console.log(chunks.length)
 
     await Promise.all(chunks.map(chunk => insertNewValues(address, chunk)))
@@ -136,8 +135,7 @@ const updateCollectionSafe = async (address) => {
     try {
         await updateCollection(address)
     } catch (e) {
-        console.log("Fail during updating collection")
-        console.error(e)
+        console.log("Fail during updating collection " + address)
     }
 }
 
@@ -156,8 +154,6 @@ const getCollectionAddresses = () => {
     return query("SELECT contract_address FROM collections").then(_ => _.rows.map(row => row.contract_address))
 }
 
-//TODO: thorughput retry better ?
-
 exports.handler = async (event, context) => {
     try {
         console.log("Updating collections data")
@@ -171,7 +167,9 @@ exports.handler = async (event, context) => {
 
         console.log(collectionAddresses)
 
-        await Promise.all(collectionAddresses.map(address => updateCollectionSafe(address)))
+        for (let i = 0; i < collectionAddresses.length; i++) {
+            await updateCollectionSafe(collectionAddresses[i])
+        }
 
         console.log("Updated collections data")
     } catch (err) {
