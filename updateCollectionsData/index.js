@@ -132,6 +132,15 @@ const updateCollection = async (address) => {
     console.log("Updated collection: " + address)
 }
 
+const updateCollectionSafe = async (address) => {
+    try {
+        await updateCollection(address)
+    } catch (e) {
+        console.log("Fail during updating collection")
+        console.error(e)
+    }
+}
+
 const insertNewValues = async (address, transfers) => {
     console.log("Inserting chunk for " + address)
     const insertValues = transfers
@@ -157,11 +166,9 @@ exports.handler = async (event, context) => {
 
         console.log(collectionAddresses)
 
-        await Promise.all(collectionAddresses.map(address => updateCollection(address.contract_address)))
+        await Promise.all(collectionAddresses.map(address => updateCollectionSafe(address.contract_address)))
 
         console.log("Updated collections data")
-
-        //TODO: return sth ?
     } catch (err) {
         console.log(err);
         throw err;
