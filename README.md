@@ -31,43 +31,86 @@ considering holding time, number of trades, number of held tokens - at chosen bl
 
 [//]: # (TODO: all endpoints)
 
-###GET /getAverageHoldingTimePerToken
-Returns data about tokens held (or holding) for each holder of collection until block.
+### GET /getAverageHoldingTimePerToken
+
+Returns data about tokens held (or holding) for each holder of collection until block. Each NFT is used equally - so
+holding time for account with 2 NFTs is 2x of account with 1 NFT.
 
 <strong>Input parameters:</strong> \
 [Required] `collection` - collection address \
-[Optional] `block` - block until which metric should be calculated, if not provided - uses latest block 
+[Optional] `block` - block until which metric should be calculated, if not provided - uses the latest block
 
 <strong>Output parameters for each holder</strong>: \
 `holder` - holder address \
 `heldTokenCount` - unique number of tokens that ever was on holder address \
-`totalTokensHoldingTime` - sum of blocks that address was holding for tokens (holding e.g. 2 NFTs counts 2x more than holding one)
-`averageHoldingTime` - `totalTokensHoldingTime / heldTokenCount` - average number of blocks that NFTs from collection was held for
+`totalTokensHoldingTime` - sum of blocks that address was holding for tokens (holding e.g. 2 NFTs counts 2x more than
+holding one)
+`averageHoldingTime` - `totalTokensHoldingTime / heldTokenCount` - average number of blocks that NFTs from collection
+was held for
+
+### GET /getHoldingTimeForCollection
+
+Returns data about holding any element of collection for each holder of collection until block. Holding 2 NFTs at the
+same time is treated equally to holding 1.
+
+<strong>Input parameters:</strong> \
+[Required] `collection` - collection address \
+[Optional] `block` - block until which metric should be calculated, if not provided - uses the latest block
+
+<strong>Output parameters</strong>: \
+`totalCollectionBlocks` - blocks from collection creation to block provided as input (or current block) \
+<strong>Output parameters for each holder:</strong> \
+`holder` - holder address \
+`totalHoldingBlocks` - number of blocks that any NFT from collection was held \
+`holdingPercent` - `100 * totalHoldingBlocks / totalCollectionBlocks` - percent of holding any element of collections
+out of collection existence
 
 
-###GET /getHoldingTimeForCollection</strong>
-Returns all indexed collections that may be queried in API.
-  
-Returns status code 200 and JSON {collections: [{address: ...}, {address: ...}, ...]}
+### GET /getHoldingsCount
 
+Return number of tokens held per holder at provided block.
 
-- <strong>GET /getHoldingsCount</strong> - returns all indexed collections that may be queried in API. Returns status
-  code 200 and JSON {collections: [{address: ...}, {address: ...}, ...]}
+<strong>Input parameters:</strong> \
+[Required] `collection` - collection address \
+[Optional] `block` - block until which metric should be calculated, if not provided - uses the latest block
 
+<strong>Output parameters for each holder:</strong> \
+`holder` - holder address \
+`holdings` - number of tokens held
 
-- <strong>GET /getTransfersDetails</strong> - returns all indexed collections that may be queried in API. Returns status
-  code 200 and JSON {collections: [{address: ...}, {address: ...}, ...]}
+### GET /getTransfersDetails
 
+Return data for each holder about his/her transfers, mints and burns at provided block.
 
-- <strong>GET /getIndexedCollections</strong> - returns all indexed collections that may be queried in API. Returns
-  status code 200 and JSON `{"collections": [{"address": ...}, ...]}`
+<strong>Input parameters:</strong> \
+[Required] `collection` - collection address \
+[Optional] `block` - block until which metric should be calculated, if not provided - uses the latest block
 
+<strong>Output parameters for each holder:</strong> \
+`holder` - holder address \
+`trades.mints` - number of mints of collection elements to holder address \
+`trades.transfersIn` - number of collections elements transferred to holder address (excluding mints) \
+`trades.transfersOut` - number of collections elements transferred from holder address (excluding burns) \
+`trades.burns` - number of burns of collection elements from holder address \
 
-- <strong>POST /addCollection</strong> - add new collection to be queried in API. Takes JSON body eg.
-  `{
-  "address": "0x93646745Ee291f1C32733f549091390C0ff83B1C"
-  }`
+### GET /getIndexedCollections
+
+Returns all indexed collections that may be queried in this API.
+
+<strong>Output parameters for each collection:</strong> \
+`address` - collection address
+
+### POST /addCollection
+
+Add new collection to be queried in this API.
+
+<strong>Input body:</strong> \
+`address` - collection address
 
 ## Examples
 
 [//]: # (TODO: example curls)
+
+## API internals description
+
+[//]: # (TODO: worker lambda)
