@@ -1,13 +1,12 @@
+const {isTransferMint, isTransferBurnt} = require("../common");
 const getNumberOfTrades = (transfers) => {
     const holdersToTradesMap = new Map()
-    for (let i = 0; i < transfers.length; i++) {
-        const transfer = transfers[i]
+    transfers.forEach(transfer => {
         const fromTrades = holdersToTradesMap.get(transfer.from)
         const toTrades = holdersToTradesMap.get(transfer.to)
-        //not mint
-        if (transfer.from !== '0x0000000000000000000000000000000000000000') {
-            //burn
-            if (transfer.to === '0x0000000000000000000000000000000000000000') {
+
+        if (!isTransferMint(transfer)) {
+            if (isTransferBurnt(transfer)) {
                 holdersToTradesMap.set(transfer.from, {
                     mints: fromTrades.mints,
                     transfersIn: fromTrades.transfersIn,
@@ -23,11 +22,9 @@ const getNumberOfTrades = (transfers) => {
                 })
             }
         }
-        //not burn
-        if (transfer.to !== '0x0000000000000000000000000000000000000000') {
+        if (!isTransferBurnt(transfer)) {
             if (toTrades) {
-                //mint
-                if (transfer.from === '0x0000000000000000000000000000000000000000') {
+                if (isTransferMint(transfer)) {
                     holdersToTradesMap.set(transfer.to, {
                         mints: toTrades.mints + 1,
                         transfersIn: toTrades.transfersIn,
@@ -43,7 +40,7 @@ const getNumberOfTrades = (transfers) => {
                     })
                 }
             } else {
-                if (transfer.from === '0x0000000000000000000000000000000000000000') {
+                if (isTransferMint(transfer)) {
                     holdersToTradesMap.set(transfer.to, {
                         mints: 1,
                         transfersIn: 0,
@@ -60,7 +57,7 @@ const getNumberOfTrades = (transfers) => {
                 }
             }
         }
-    }
+    })
 
     return Array.from(holdersToTradesMap.entries()).map(entry => {
         return {

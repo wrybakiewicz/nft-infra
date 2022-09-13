@@ -4,6 +4,7 @@ const app = require('../../index.js');
 const chai = require('chai');
 const expect = chai.expect;
 const chaiAsPromised = require("chai-as-promised");
+const {zeroAddress} = require("../../../common");
 chai.use(chaiAsPromised);
 
 describe('update collection data', function () {
@@ -18,7 +19,7 @@ describe('update collection data', function () {
 
     it('should update collection data for one collection', async () => {
         let context;
-        let event = { address: '0x0000000000000000000000000000000000000000' };
+        let event = { address: zeroAddress };
 
         const result = await app.handler(event, context)
 

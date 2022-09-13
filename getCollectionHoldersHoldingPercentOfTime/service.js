@@ -1,3 +1,4 @@
+const {isTransferMint, isTransferBurnt} = require("../common");
 const getCollectionHoldersHoldingPercentOfTimeDetails = (transfers, toBlock) => {
     if (transfers.length === 0) {
         return []
@@ -24,13 +25,12 @@ const getCollectionHoldersHoldingPercentOfTimeDetails = (transfers, toBlock) => 
 
 const getCollectionHoldersHoldingBlockDetails = (transfers) => {
     const holdersToHoldingBlocksMap = new Map()
-    for (let i = 0; i < transfers.length; i++) {
-        const transfer = transfers[i]
+    transfers.forEach(transfer =>{
         const block = transfer.block
         const fromHoldingBlocks = holdersToHoldingBlocksMap.get(transfer.from)
         const toHoldingBlocks = holdersToHoldingBlocksMap.get(transfer.to)
-        //not mint
-        if (transfer.from !== '0x0000000000000000000000000000000000000000') {
+
+        if (!isTransferMint(transfer)) {
             let lastHoldingFrom
             let totalHoldingBlocks = fromHoldingBlocks.totalHoldingBlocks
             if (fromHoldingBlocks.holdingCount > 1) {
@@ -45,8 +45,8 @@ const getCollectionHoldersHoldingBlockDetails = (transfers) => {
                 holdingCount: fromHoldingBlocks.holdingCount - 1
             })
         }
-        //not burn
-        if (transfer.to !== '0x0000000000000000000000000000000000000000') {
+
+        if (!isTransferBurnt(transfer)) {
             if (toHoldingBlocks) {
                 let lastHoldingFrom = block
                 if (toHoldingBlocks.lastHoldingFrom) {
@@ -65,7 +65,7 @@ const getCollectionHoldersHoldingBlockDetails = (transfers) => {
                 })
             }
         }
-    }
+    })
     return Array.from(holdersToHoldingBlocksMap.entries()).map(entry => {
         return {
             holder: entry[0],
