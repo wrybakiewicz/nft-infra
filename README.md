@@ -4,6 +4,8 @@
 
 This project is submission for <strong>ETH</strong>Online Hackathon.
 
+Examples of API queries are below in `Examples` section.  
+
 Done by: \
 <strong>Wojciech Rybakiewicz</strong> \
 <strong>Maciej Ruszczyk</strong>
@@ -108,8 +110,31 @@ Add new collection to be queried in this API.
 `address` - collection address
 
 ## Examples
+Example collection: <strong>motorheadz</strong> \
+`0x5c9d55b78febcc2061715ba4f57ecf8ea2711f2c`
 
-[//]: # (TODO: example curls)
+For links below - use curl or copy into browser (for GET methods).
+
+### GET /getAverageHoldingTimePerToken
+`https://r6ocq8rga8.execute-api.eu-central-1.amazonaws.com/api/getAverageHoldingTimePerToken?collection=0x5c9d55b78febcc2061715ba4f57ecf8ea2711f2c&block=23005848`
+
+### GET /getHoldingTimeForCollection
+`https://r6ocq8rga8.execute-api.eu-central-1.amazonaws.com/api/getHoldingTimeForCollection?collection=0x5c9d55b78febcc2061715ba4f57ecf8ea2711f2c&block=23005848`
+
+### GET /getHoldingsCount
+`https://r6ocq8rga8.execute-api.eu-central-1.amazonaws.com/api/getHoldingsCount?block=996358448&collection=0x5c9d55b78febcc2061715ba4f57ecf8ea2711f2c&block=23005848`
+
+### GET /getTransfersDetails
+`https://r6ocq8rga8.execute-api.eu-central-1.amazonaws.com/api/getTransfersDetails?collection=0x5c9d55b78febcc2061715ba4f57ecf8ea2711f2c&block=23005848`
+
+### GET /getIndexedCollections
+`https://r6ocq8rga8.execute-api.eu-central-1.amazonaws.com/api/getIndexedCollections`
+
+### POST /addCollection
+`https://r6ocq8rga8.execute-api.eu-central-1.amazonaws.com/api/addCollection` 
+
+`{"address": "0x93646745Ee291f1C32733f549091390C0ff83B1C"}`
+
 
 ## API internals description
 
