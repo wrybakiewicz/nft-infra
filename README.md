@@ -1,8 +1,8 @@
-# NFT Airdrop API
+# NFT Airdrop API for Optimism Network
 
 ## Info
 
-This project is submission for <strong>ETH</strong>Online Hackathon.
+This project is submission for <strong>ETH</strong>Online Hackathon for <strong>Optimism Network</strong> Bounty.
 
 Examples of API queries are below in `Examples` section.  
 
