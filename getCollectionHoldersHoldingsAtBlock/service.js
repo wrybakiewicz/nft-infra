@@ -1,4 +1,4 @@
-const {isTransferBurnt, isTransferMint} = require("../common");
+const {isTransferBurnt, isTransferMint} = require("common");
 const getCollectionHolderHoldings = (transfers) => {
     const holderHoldingMap = new Map()
 

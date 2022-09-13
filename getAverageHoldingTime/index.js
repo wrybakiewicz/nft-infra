@@ -103,7 +103,7 @@ exports.handler = async (event, context) => {
 
         const averageHoldingTime = await getAverageNftHoldingTime(collection, block)
 
-        console.log(`Getting average holding time for: ${collection} at block: ${block}`)
+        console.log(`Got average holding time for: ${collection} at block: ${block}`)
 
         return buildResponse(200, {averageHoldingTime: averageHoldingTime})
     } catch (err) {

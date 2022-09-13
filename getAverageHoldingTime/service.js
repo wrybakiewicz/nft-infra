@@ -1,4 +1,4 @@
-const {isTransferMint, isTransferBurnt} = require("../common");
+const {isTransferMint, isTransferBurnt} = require("common");
 const getAverageHoldingTime = (transfers, toBlock) => {
     const holdersToHoldingDetails = getHoldersToHoldingDetails(transfers)
     const holdersToHoldingDetailsToBlock = holdersToHoldingDetails.map(holdersToHoldings => {

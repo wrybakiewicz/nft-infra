@@ -1,4 +1,4 @@
-const {isTransferMint, isTransferBurnt} = require("../common");
+const {isTransferMint, isTransferBurnt} = require("common");
 const getCollectionHoldersHoldingPercentOfTimeDetails = (transfers, toBlock) => {
     if (transfers.length === 0) {
         return []

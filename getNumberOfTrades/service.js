@@ -1,4 +1,4 @@
-const {isTransferMint, isTransferBurnt} = require("../common");
+const {isTransferMint, isTransferBurnt} = require("common");
 const getNumberOfTrades = (transfers) => {
     const holdersToTradesMap = new Map()
     transfers.forEach(transfer => {
