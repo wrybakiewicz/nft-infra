@@ -1,8 +1,7 @@
 const {isTransferMint, isTransferBurnt} = require("../common");
 const getNumberOfTrades = (transfers) => {
     const holdersToTradesMap = new Map()
-    for (let i = 0; i < transfers.length; i++) {
-        const transfer = transfers[i]
+    transfers.forEach(transfer => {
         const fromTrades = holdersToTradesMap.get(transfer.from)
         const toTrades = holdersToTradesMap.get(transfer.to)
 
@@ -58,7 +57,7 @@ const getNumberOfTrades = (transfers) => {
                 }
             }
         }
-    }
+    })
 
     return Array.from(holdersToTradesMap.entries()).map(entry => {
         return {

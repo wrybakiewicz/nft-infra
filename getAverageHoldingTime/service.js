@@ -35,9 +35,9 @@ const getAverageHoldingTime = (transfers, toBlock) => {
 }
 
 const getHoldersToHoldingDetails = (transfers) => {
-    const holdersToHoldingsMap = new Map()
-    for (let i = 0; i < transfers.length; i++) {
-        const transfer = transfers[i]
+    const holdersToHoldingsMap = new Map();
+
+    transfers.forEach(transfer =>{
         const fromHoldings = getOrEmptyArray(holdersToHoldingsMap.get(transfer.from))
         const toHoldings = getOrEmptyArray(holdersToHoldingsMap.get(transfer.to))
         //{[{tokenId, holdingFrom, holdingTo}]}
@@ -64,7 +64,7 @@ const getHoldersToHoldingDetails = (transfers) => {
             }
             holdersToHoldingsMap.set(transfer.to, [...toHoldings, newHolding])
         }
-    }
+    })
     return Array.from(holdersToHoldingsMap.entries()).map(entry => {
         return {
             holder: entry[0],

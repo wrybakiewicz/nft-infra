@@ -25,8 +25,7 @@ const getCollectionHoldersHoldingPercentOfTimeDetails = (transfers, toBlock) => 
 
 const getCollectionHoldersHoldingBlockDetails = (transfers) => {
     const holdersToHoldingBlocksMap = new Map()
-    for (let i = 0; i < transfers.length; i++) {
-        const transfer = transfers[i]
+    transfers.forEach(transfer =>{
         const block = transfer.block
         const fromHoldingBlocks = holdersToHoldingBlocksMap.get(transfer.from)
         const toHoldingBlocks = holdersToHoldingBlocksMap.get(transfer.to)
@@ -66,7 +65,7 @@ const getCollectionHoldersHoldingBlockDetails = (transfers) => {
                 })
             }
         }
-    }
+    })
     return Array.from(holdersToHoldingBlocksMap.entries()).map(entry => {
         return {
             holder: entry[0],
