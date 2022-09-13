@@ -1,11 +1,11 @@
 CREATE TABLE transfers
 (
+    id SERIAL PRIMARY KEY,
     contract_address text,
     from_address     text,
     to_address       text,
     token_id         int,
-    block            int,
-    PRIMARY KEY(contract_address, from_address, to_address, token_id, block)
+    block            int
 );
 
 CREATE TABLE collections

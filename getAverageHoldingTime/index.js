@@ -65,10 +65,12 @@ const getToBlock = async (block) => {
 
 const getAverageNftHoldingTime = async (address, block) => {
     let blockQuery = ""
-    if(block) {
+    if (block) {
         blockQuery = ` AND BLOCK <= ${block}`
     }
-    const transfers = await query("SELECT from_address as from, to_address as to, token_id as token, block FROM transfers WHERE contract_address=$1" + blockQuery, [address]).then(result => result.rows)
+    const orderBy = " ORDER BY id"
+    const queryString = "SELECT from_address as from, to_address as to, token_id as token, block FROM transfers WHERE contract_address=$1" + blockQuery + orderBy
+    const transfers = await query(queryString, [address]).then(result => result.rows)
     return getAverageHoldingTime(transfers, await getToBlock(block))
 }
 
@@ -83,7 +85,7 @@ const isRequestValid = (event) => {
 
 exports.handler = async (event, context) => {
     try {
-        if(!isRequestValid(event)) {
+        if (!isRequestValid(event)) {
             return buildResponse(400, {error: "Pass block and collection as params"})
         }
         const queryParams = event.queryStringParameters

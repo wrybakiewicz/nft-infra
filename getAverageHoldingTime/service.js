@@ -40,7 +40,6 @@ const getHoldersToHoldingDetails = (transfers) => {
     transfers.forEach(transfer =>{
         const fromHoldings = getOrEmptyArray(holdersToHoldingsMap.get(transfer.from))
         const toHoldings = getOrEmptyArray(holdersToHoldingsMap.get(transfer.to))
-        //{[{tokenId, holdingFrom, holdingTo}]}
         if (!isTransferMint(transfer)) {
             const holding = fromHoldings.filter(holding => isHoldingMatching(holding, transfer))[0]
             const updatedHolding = {

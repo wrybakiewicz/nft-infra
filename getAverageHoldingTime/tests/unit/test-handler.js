@@ -128,7 +128,7 @@ describe('get average holding time', function () {
         expect(body.averageHoldingTime[1].totalTokenHoldingTime).to.be.gte(45149);
         expect(body.averageHoldingTime[1].averageHoldingTime).to.be.gte(45149);
         expect(body.averageHoldingTime[2].holder).to.be.eq("0x3d80618ea35d9936de784584a57ba0d4e94515e2");
-        expect(body.averageHoldingTime[2].heldTokensCount).to.be.eq(1);
+        expect(body.averageHoldingTime[2].heldTokensCount).to.be.eq(2);
         expect(body.averageHoldingTime[2].totalTokenHoldingTime).to.be.gte(1184715);
         expect(body.averageHoldingTime[2].averageHoldingTime).to.be.gte(1184715);
     });

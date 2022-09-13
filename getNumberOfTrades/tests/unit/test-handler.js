@@ -132,7 +132,7 @@ describe('get number of trades', function () {
         expect(body.holdersWithTrades[1].trades.burns).to.be.eq(0);
         expect(body.holdersWithTrades[2].holder).to.be.eq("0x3d80618ea35d9936de784584a57ba0d4e94515e2");
         expect(body.holdersWithTrades[2].trades.mints).to.be.eq(1);
-        expect(body.holdersWithTrades[2].trades.transfersIn).to.be.eq(0);
+        expect(body.holdersWithTrades[2].trades.transfersIn).to.be.eq(1);
         expect(body.holdersWithTrades[2].trades.transfersOut).to.be.eq(1);
         expect(body.holdersWithTrades[2].trades.burns).to.be.eq(0);
     });

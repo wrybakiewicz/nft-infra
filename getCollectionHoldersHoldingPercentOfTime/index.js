@@ -77,7 +77,9 @@ const getCollectionHoldersHoldingPercentOfTime = async (address, block) => {
     if (block) {
         blockQuery = ` AND BLOCK <= ${block}`
     }
-    const transfers = await query("SELECT from_address as from, to_address as to, token_id as token, block FROM transfers WHERE contract_address=$1" + blockQuery, [address]).then(result => result.rows)
+    const orderBy = " ORDER BY id"
+    const queryString = "SELECT from_address as from, to_address as to, token_id as token, block FROM transfers WHERE contract_address=$1" + blockQuery + orderBy
+    const transfers = await query(queryString, [address]).then(result => result.rows)
     return getCollectionHoldersHoldingPercentOfTimeDetails(transfers, await getToBlock(block))
 }
 
