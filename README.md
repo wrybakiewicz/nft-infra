@@ -31,8 +31,6 @@ considering holding time, number of trades, number of held tokens - at chosen bl
 
 ## Endpoints
 
-[//]: # (TODO: all endpoints)
-
 ### GET /getAverageHoldingTimePerToken
 
 Returns data about tokens held (or holding) for each holder of collection until block. Each NFT is used equally - so
@@ -138,4 +136,8 @@ For links below - use curl or copy into browser (for GET methods).
 
 ## API internals description
 
-[//]: # (TODO: worker lambda)
+API is deployed on AWS. It uses `alchemy.com` API to get transfers of collections.
+
+Data is saved on PostgreSQL and is updated by `updateCollectionsData` lambda every hour. Each lambda function is equivalent to API resource (excluding `updateCollectionsData`).
+
+To test & deploy this API those environments variables are required: `DB_USERNAME`, `DB_PASSWORD`, `DB_HOST`, `DB_NAME`, `ALCHEMY_KEY`, `AWS_ACCESS_KEY`, `AWS_SECRET_KEY`
