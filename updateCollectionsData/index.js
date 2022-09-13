@@ -126,7 +126,7 @@ const updateCollection = async (address) => {
     const chunks = splitIntoChunks(mappedTransfers, 1000)
     console.log(chunks.length)
 
-    await Promise.all(chunks.map(chunk => insertNewValues(address, chunk)))
+    await Promise.all(chunks.map(_ => insertNewValues(address, _)))
 
     console.log("Updated collection: " + address)
 }

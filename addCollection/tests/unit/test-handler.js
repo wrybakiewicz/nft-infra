@@ -4,6 +4,7 @@ const app = require('../../index.js');
 const chai = require('chai');
 const expect = chai.expect;
 const chaiAsPromised = require("chai-as-promised");
+const {zeroAddress} = require("../../../common");
 chai.use(chaiAsPromised);
 
 describe('add collection', function () {
@@ -65,7 +66,7 @@ describe('add collection', function () {
 
     it('should add new collection', async () => {
         let context;
-        const event = {body: '{\n\t"address": "0x0000000000000000000000000000000000000000"\n}',}
+        const event = {body: `{\n\t"address": "${zeroAddress}"\n}`,}
 
         const result = await app.handler(event, context)
 

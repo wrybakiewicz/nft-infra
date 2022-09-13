@@ -2,9 +2,9 @@
 
 const app = require('../../service');
 const chai = require('chai');
+const {zeroAddress} = require("../../../common");
 const expect = chai.expect;
 
-const zeroAddress = '0x0000000000000000000000000000000000000000'
 const holder1 = '0x0000000000000000000000000000000000000001'
 const holder2 = '0x0000000000000000000000000000000000000002'
 const holder3 = '0x0000000000000000000000000000000000000003'
