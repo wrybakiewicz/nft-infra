@@ -1,19 +1,20 @@
+const {isTransferBurnt, isTransferMint} = require("../common");
 const getCollectionHolderHoldings = (transfers) => {
     const holderHoldingMap = new Map()
     for (let i = 0; i < transfers.length; i++) {
         const transfer = transfers[i]
         const fromHolding = holderHoldingMap.get(transfer.from)
         const toHolding = holderHoldingMap.get(transfer.to)
-        //not mint
-        if (transfer.from !== '0x0000000000000000000000000000000000000000') {
+
+        if (!isTransferMint(transfer)) {
             if (fromHolding === 1) {
                 holderHoldingMap.delete(transfer.from);
             } else {
                 holderHoldingMap.set(transfer.from, fromHolding - 1)
             }
         }
-        //not burn
-        if (transfer.to !== '0x0000000000000000000000000000000000000000') {
+
+        if (!isTransferBurnt(transfer)) {
             if (!toHolding) {
                 holderHoldingMap.set(transfer.to, 1)
             } else {

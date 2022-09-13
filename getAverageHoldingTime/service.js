@@ -1,3 +1,4 @@
+const {isTransferMint, isTransferBurnt} = require("../common");
 const getAverageHoldingTime = (transfers, toBlock) => {
     const holdersToHoldingDetails = getHoldersToHoldingDetails(transfers)
     const holdersToHoldingDetailsToBlock = holdersToHoldingDetails.map(holdersToHoldings => {
@@ -40,8 +41,7 @@ const getHoldersToHoldingDetails = (transfers) => {
         const fromHoldings = getOrEmptyArray(holdersToHoldingsMap.get(transfer.from))
         const toHoldings = getOrEmptyArray(holdersToHoldingsMap.get(transfer.to))
         //{[{tokenId, holdingFrom, holdingTo}]}
-        //not mint
-        if (transfer.from !== '0x0000000000000000000000000000000000000000') {
+        if (!isTransferMint(transfer)) {
             const holding = fromHoldings.filter(holding => isHoldingMatching(holding, transfer))[0]
             const updatedHolding = {
                 tokenId: holding.tokenId,
@@ -57,8 +57,7 @@ const getHoldersToHoldingDetails = (transfers) => {
             })
             holdersToHoldingsMap.set(transfer.from, updatedHoldings)
         }
-        //not burn
-        if (transfer.to !== '0x0000000000000000000000000000000000000000') {
+        if (!isTransferBurnt(transfer)) {
             const newHolding = {
                 tokenId: transfer.token,
                 holdingFrom: transfer.block
