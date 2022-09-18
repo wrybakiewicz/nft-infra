@@ -27,6 +27,20 @@ async function query(query, value) {
     }
 }
 
+const queryWithCommit = async function (query, value) {
+    if (client === undefined) {
+        await initializeDbClient()
+    }
+    try {
+        const insertResult =  await client.query(query, value)
+        await client.query('COMMIT')
+        return insertResult
+    } catch (e) {
+        console.log("Error querying")
+        throw e
+    }
+}
+
 const initializeDbClient = async () => {
     try {
         client = await pool.connect()
@@ -36,17 +50,27 @@ const initializeDbClient = async () => {
     }
 }
 
-const getTransfers = (address, latestSavedBlock) => {
-    return getTransfersSum([], address, latestSavedBlock, true, undefined)
+const insertTransfers = async (address, transfers) => {
+    if(transfers.length === 0) {
+        return
+    }
+    const mappedTransfers = transfers.map(transfer => {
+        return {
+            from: transfer.from,
+            to: transfer.to,
+            tokenId: parseInt(transfer.tokenId, 16),
+            block: parseInt(transfer.blockNum, 16)
+        }
+    })
+    console.log(mappedTransfers.length)
+    await insertNewValues(address, mappedTransfers)
 }
 
-const getTransfersSum = async (transfers, address, latestSavedBlock, firstRequest, pageKey) => {
+const updateTransfers = async (address, latestSavedBlock, firstRequest, pageKey) => {
     if (firstRequest || pageKey) {
         const result = await getTransfersExec(address, pageKey, latestSavedBlock, 10)
-        const newTransfers = transfers.concat(result.transfers)
-        return getTransfersSum(newTransfers, address, latestSavedBlock, false, result.pageKey)
-    } else {
-        return transfers
+        await insertTransfers(address, result.transfers)
+        return updateTransfers(address, latestSavedBlock, false, result.pageKey)
     }
 }
 
@@ -97,14 +121,6 @@ const getTransfersExecRetry = async (contractAddress, pageKey, latestSavedBlock)
     }
 }
 
-const splitIntoChunks = (array, chunkSize) => {
-    const chunks = []
-    for (let i = 0; i < array.length; i += chunkSize) {
-        chunks.push(array.slice(i, i + chunkSize))
-    }
-    return chunks
-}
-
 const getLatestSavedBlock = (address) => {
     return query("SELECT MAX(block) FROM transfers WHERE contract_address=$1", [address]).then(_ => _.rows[0].max)
 }
@@ -112,22 +128,7 @@ const getLatestSavedBlock = (address) => {
 const updateCollection = async (address) => {
     console.log("Updating collection: " + address)
     const latestSavedBlock = await getLatestSavedBlock(address)
-    const transfers = await getTransfers(address, latestSavedBlock)
-    const mappedTransfers = transfers.map(transfer => {
-        return {
-            from: transfer.from,
-            to: transfer.to,
-            tokenId: parseInt(transfer.tokenId, 16),
-            block: parseInt(transfer.blockNum, 16)
-        }
-    })
-    console.log(mappedTransfers.length)
-
-    const chunks = splitIntoChunks(mappedTransfers, 1000)
-    console.log(chunks.length)
-
-    await Promise.all(chunks.map(_ => insertNewValues(address, _)))
-
+    await updateTransfers(address, latestSavedBlock, true, undefined)
     console.log("Updated collection: " + address)
 }
 
@@ -145,7 +146,7 @@ const insertNewValues = async (address, transfers) => {
         .map(transfer => `('${address}', '${transfer.from}', '${transfer.to}', ${transfer.tokenId}, ${transfer.block})`)
         .join(", ")
 
-    await query(`INSERT INTO transfers(contract_address, from_address, to_address, token_id, block)
+    await queryWithCommit(`INSERT INTO transfers(contract_address, from_address, to_address, token_id, block)
                  VALUES ${insertValues}`)
     console.log("Inserted chunk for " + address)
 }
@@ -160,7 +161,7 @@ exports.handler = async (event, context) => {
 
         let collectionAddresses
         if(event && event.address) {
-            collectionAddresses = [event.address]
+            collectionAddresses = [event.address.toLowerCase()]
         } else {
             collectionAddresses = await getCollectionAddresses()
         }

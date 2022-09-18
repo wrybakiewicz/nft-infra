@@ -10,7 +10,7 @@ describe('update collection data', function () {
 
     it('should update collection data for one collection', async () => {
         let context;
-        let event = { address: "0x5c9d55b78febcc2061715ba4f57ecf8ea2711f2c" };
+        let event = { address: "0x81b30ff521d1feb67ede32db726d95714eb00637" };
 
         const result = await app.handler(event, context)
 
